@@ -27,3 +27,13 @@ variable "vpc_id" {
   description = "VPC ID to use for the EC2."
   type        = string
 }
+
+variable "wan_wg_public_key" {
+  description = "Wireguard public Key for the external facing host."
+  type        = string
+}
+
+variable "internal_wg_public_key" {
+  description = "Wireguard public Key for the internal facing host."
+  type        = string
+}
