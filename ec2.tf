@@ -5,6 +5,7 @@ resource "aws_instance" "this" {
     home_cidr              = var.home_cidr
     wan_wg_public_key      = var.wan_wg_public_key
     internal_wg_public_key = var.internal_wg_public_key
+    wireguard_port         = var.wireguard_port
   })
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.wg.id]

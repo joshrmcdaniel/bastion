@@ -16,6 +16,7 @@ PrivateKey = $WG_PRIV_KEY
 PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT
 PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; iptables -t nat -D POSTROUTING -o wg0 -j MASQUERADE; ip6tables -D FORWARD -i wg0 -j ACCEPT
 Address = 172.22.99.1/29 # Wireguard internal network. Can't overlap with home network
+ListenPort = ${wireguard_port}
 [Peer]
 # External host
 PublicKey = ${wan_wg_public_key}
@@ -25,3 +26,5 @@ AllowedIPs = 172.22.99.4/32
 PublicKey = ${internal_wg_public_key}
 AllowedIPs = 172.22.99.3/32, ${home_cidr}
 EOF
+
+sudo systemctl enable --now wg-quick@wg0.service
