@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "bastion_assume_role" {
 
 data "aws_iam_policy_document" "bastion_perms" {
   statement {
-    actions   = ["ssm:PutParameter", "ssm:GetParameter"]
+    actions   = ["ssm:PutParameter"]
     resources = [aws_ssm_parameter.wg_pubkey.arn]
   }
 }
