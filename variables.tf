@@ -4,12 +4,12 @@ variable "key_name" {
   default     = null
 }
 
-variable "home_cidr" {
-  description = "CIDR block of home network."
-  type        = string
+variable "cidr_blocks" {
+  description = "CIDR blocks to allow the wireguard to connect to."
+  type        = list(string)
   validation {
-    condition     = can(cidrnetmask(var.home_cidr))
-    error_message = "Invalid CIDR provided."
+    condition     = alltrue([for cidr in var.cidr_blocks : can(cidrnetmask(cidr))])
+    error_message = "An invalid CIDR was provided."
   }
 }
 

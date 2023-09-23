@@ -1,14 +1,11 @@
 resource "aws_instance" "this" {
   instance_type = "t2.micro"
   ami           = data.aws_ami.debian_12.id
-  user_data = templatefile("${local.resource_path}/deploy.sh", {
-    home_cidr              = var.home_cidr
-    wan_wg_public_key      = var.wan_wg_public_key
-    internal_wg_public_key = var.internal_wg_public_key
-    wireguard_port         = var.wireguard_port
-  })
-  key_name               = var.key_name
+
+  iam_instance_profile   = aws_iam_instance_profile.bastion.name
   vpc_security_group_ids = [aws_security_group.wg.id]
+
+  key_name = var.key_name
 
   metadata_options {
     http_endpoint = "enabled"
@@ -16,11 +13,18 @@ resource "aws_instance" "this" {
   }
 
   tags = {
-    "Name"      = "bastion"
-    "Terraform" = true
-    "Service"   = "Wireguard"
-    "Purpose"   = "Bastion"
+    "Name"    = "bastion"
+    "Service" = "Wireguard"
   }
+
+  user_data_base64 = base64gzip(templatefile("${local.resource_path}/cloud-config.yaml", {
+    cidrs                  = local.cidrs
+    wan_wg_public_key      = var.wan_wg_public_key
+    internal_wg_public_key = var.internal_wg_public_key
+    wireguard_port         = var.wireguard_port
+    pub_key_param          = aws_ssm_parameter.wg_pubkey
+    ssh_enabled            = var.key_name != null
+  }))
 
   lifecycle {
     precondition {
@@ -33,6 +37,8 @@ resource "aws_instance" "this" {
 
 resource "null_resource" "wg_change" {
   triggers = {
-    ec2 = join(",", [var.home_cidr, var.wan_wg_public_key, var.internal_wg_public_key])
+    wan_pubkey = var.wan_wg_public_key
+    lan_pubkey = var.internal_wg_public_key
+    cidrs      = local.cidrs
   }
 }
