@@ -28,7 +28,7 @@ resource "aws_instance" "this" {
 
   lifecycle {
     precondition {
-      condition     = fileexists("${local.resource_path}/deploy.sh")
+      condition     = fileexists("${local.resource_path}/cloud-config.yaml")
       error_message = "User data file does not exist."
     }
     replace_triggered_by = [null_resource.wg_change]
