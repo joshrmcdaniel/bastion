@@ -21,8 +21,8 @@ module "bastion" {
   key_name       = "bastion_ssh_key"
   wireguard_cidr = "172.16.1.0/24"
   lan_cidrs      = ["10.0.0.0/8"]
-  wan_pub_key    = "wan_wg_public_key" # Key from wireguard client on the external network
-  lan_pub_key    = "lan_wg_public_key" # Key from wireguard client on the internal network
+  wan_pub_key    = "wan_wg_public_key" # Key from external wireguard client
+  lan_pub_key    = "lan_wg_public_key" # Key from internal wireguard client
 }
 ```
 
