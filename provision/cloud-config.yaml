@@ -39,16 +39,16 @@ write_files:
       PostDown = /etc/wireguard/postdown.sh "%i"
 
       # Wireguard internal network. Can't overlap with home network
-      Address = 172.22.99.1/29
+      Address = ${wireguard_cidr}
       ListenPort = ${wireguard_port}
       [Peer]
       # External host
       PublicKey = ${wan_wg_public_key}
-      AllowedIPs = 172.22.99.4/32
+      AllowedIPs = ${wan_peer}
       [Peer]
       # Machine to VPN to
       PublicKey = ${internal_wg_public_key}
-      AllowedIPs = 172.22.99.3/32%{ if cidrs != "" },${cidrs}%{ endif }
+      AllowedIPs = ${lan_peer}%{ for cidr in lan_cidrs },${cidr}%{ endfor }
     owner: root:root
     permissions: '600'
     defer: false
@@ -61,18 +61,10 @@ packages:
   - unzip
 
 runcmd:
-  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/var/run/awscliv2.zip"
-  - unzip -qq /var/run/awscliv2.zip
-  - /var/run/aws/install
-  - rm -rf /var/run/aws /var/run/awscliv2.zip
-  - ufw default deny incoming
-  - ufw default allow outgoing
-  %{~ if ssh_enabled ~}
-  - ufw allow ssh
-  %{~ endif ~}
-  - ufw allow in on wg0 proto udp from 172.22.99.1/29 port ${wireguard_port}
-  - ufw allow in on eth0 proto udp from any port ${wireguard_port}
-  - ufw --force enable
+  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+  - unzip -qq /tmp/awscliv2.zip -d /tmp
+  - /tmp/aws/install
+  - rm -rf /tmp/aws /tmp/aws/awscliv2.zip
   - WG_PRIV_KEY=$(wg genkey)
   - sed -i "s^WG_PRIV_KEY^$WG_PRIV_KEY^g" /etc/wireguard/wg0.conf
   - WG_PUB_KEY=$(printf '%s' "$WG_PRIV_KEY" | wg pubkey)

@@ -34,7 +34,7 @@ resource "aws_security_group_rule" "wireguard" {
 }
 
 resource "aws_security_group_rule" "ssh" {
-  count = var.key_name != null ? 1 : 0
+  count = var.ssh_enabled ? 1 : 0
 
   security_group_id = aws_security_group.wg.id
   description       = "Allow SSH in"
@@ -45,4 +45,5 @@ resource "aws_security_group_rule" "ssh" {
   protocol  = "tcp"
 
   cidr_blocks = ["0.0.0.0/0"]
+
 }

@@ -1,4 +1,4 @@
 locals {
   resource_path = "${path.module}/provision"
-  cidrs         = join(",", var.cidr_blocks)
+  netmask       = split("/", var.wireguard_cidr)[1]
 }
